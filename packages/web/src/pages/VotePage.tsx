@@ -7,11 +7,13 @@ import { Container } from '../components/layout/Container';
 import { Header } from '../components/layout/Header';
 import { Card } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
+import { Alert } from '../components/ui/Alert';
 import { ApiError } from '../services/api';
+import { featureService } from '../services/featureService';
 
 export function VotePage() {
   const { user, userEmail, isAuthenticated } = useAuth();
-  const { features, loading: featuresLoading } = useFeatures();
+  const { features, loading: featuresLoading, refetch: refetchFeatures } = useFeatures();
   const { votes, submitVote, refetch: refetchVotes } = useVotes();
   const navigate = useNavigate();
 
@@ -19,6 +21,13 @@ export function VotePage() {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
   const [hasVotedInSession, setHasVotedInSession] = useState(false);
+
+  // Create feature form state
+  const [showCreateForm, setShowCreateForm] = useState(false);
+  const [newFeatureTitle, setNewFeatureTitle] = useState('');
+  const [newFeatureDescription, setNewFeatureDescription] = useState('');
+  const [creating, setCreating] = useState(false);
+  const [createError, setCreateError] = useState('');
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -35,6 +44,48 @@ export function VotePage() {
       }
     }
   }, [user, votes]);
+
+  const handleCreateFeature = async () => {
+    if (!userEmail) {
+      setCreateError('User email not found');
+      return;
+    }
+
+    if (!newFeatureTitle.trim() || !newFeatureDescription.trim()) {
+      setCreateError('Please fill in all fields');
+      return;
+    }
+
+    setCreating(true);
+    setCreateError('');
+
+    try {
+      const newFeature = await featureService.createFeature({
+        title: newFeatureTitle.trim(),
+        description: newFeatureDescription.trim(),
+        createdByEmail: userEmail,
+      });
+
+      // Refetch features to update the dropdown
+      await refetchFeatures();
+
+      // Auto-select the newly created feature
+      setSelectedFeature(newFeature.id);
+
+      // Reset form
+      setNewFeatureTitle('');
+      setNewFeatureDescription('');
+      setShowCreateForm(false);
+    } catch (err) {
+      if (err instanceof ApiError) {
+        setCreateError(err.message);
+      } else {
+        setCreateError('Failed to create feature. Please try again.');
+      }
+    } finally {
+      setCreating(false);
+    }
+  };
 
   const handleSubmit = async () => {
     if (!userEmail) {
@@ -86,9 +137,14 @@ export function VotePage() {
         </div>
 
         {error && (
-          <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700">
+          <Alert 
+            type="error" 
+            title="Error" 
+            onDismiss={() => setError('')}
+            className="mb-6"
+          >
             {error}
-          </div>
+          </Alert>
         )}
 
         {featuresLoading ? (
@@ -120,6 +176,81 @@ export function VotePage() {
           </div>
         ) : (
           <>
+            {/* Create New Feature Section */}
+            <Card className="mb-6">
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="text-lg font-semibold text-gray-900">Create New Feature</h3>
+                <Button
+                  variant="secondary"
+                  onClick={() => {
+                    setShowCreateForm(!showCreateForm);
+                    setCreateError('');
+                  }}
+                  data-testid="toggle-create-form-button"
+                >
+                  {showCreateForm ? 'Cancel' : '+ Add New Feature'}
+                </Button>
+              </div>
+
+              {showCreateForm && (
+                <div className="space-y-4">
+                  <div>
+                    <label className="block mb-2">
+                      <span className="text-gray-700 font-medium text-sm">
+                        Feature Title
+                      </span>
+                    </label>
+                    <input
+                      type="text"
+                      value={newFeatureTitle}
+                      onChange={(e) => setNewFeatureTitle(e.target.value)}
+                      placeholder="Enter feature title (5-100 characters)"
+                      disabled={creating}
+                      maxLength={100}
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent disabled:opacity-50"
+                      data-testid="new-feature-title-input"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block mb-2">
+                      <span className="text-gray-700 font-medium text-sm">
+                        Feature Description
+                      </span>
+                    </label>
+                    <textarea
+                      value={newFeatureDescription}
+                      onChange={(e) => setNewFeatureDescription(e.target.value)}
+                      placeholder="Enter feature description (10-500 characters)"
+                      disabled={creating}
+                      maxLength={500}
+                      rows={4}
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent disabled:opacity-50 resize-none"
+                      data-testid="new-feature-description-input"
+                    />
+                  </div>
+
+                  {createError && (
+                    <Alert 
+                      type="error" 
+                      onDismiss={() => setCreateError('')}
+                    >
+                      {createError}
+                    </Alert>
+                  )}
+
+                  <Button
+                    onClick={handleCreateFeature}
+                    disabled={creating || !newFeatureTitle.trim() || !newFeatureDescription.trim()}
+                    className="w-full"
+                    data-testid="create-feature-button"
+                  >
+                    {creating ? 'Creating...' : 'Create Feature'}
+                  </Button>
+                </div>
+              )}
+            </Card>
+
             <Card className="mb-8">
               <label className="block mb-4">
                 <span className="text-gray-700 font-medium mb-2 block">

@@ -1,10 +1,17 @@
 import { API_BASE_URL } from '../constants/api';
 
 export class ApiError extends Error {
-  constructor(public message: string, public status?: number) {
+  constructor(public message: string, public status?: number, public details?: Array<{ field: string; message: string }>) {
     super(message);
     this.name = 'ApiError';
   }
+}
+
+function formatValidationErrors(details?: Array<{ field: string; message: string }>): string {
+  if (!details || details.length === 0) {
+    return 'Validation failed';
+  }
+  return details.map(d => d.message).join('. ');
 }
 
 async function apiRequest<T>(
@@ -22,7 +29,10 @@ async function apiRequest<T>(
   const data = await response.json();
 
   if (!response.ok || !data.success) {
-    throw new ApiError(data.error || 'Request failed', response.status);
+    const errorMessage = data.details 
+      ? formatValidationErrors(data.details) 
+      : (data.error || 'Request failed');
+    throw new ApiError(errorMessage, response.status, data.details);
   }
 
   return data.data;

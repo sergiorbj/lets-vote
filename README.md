@@ -8,6 +8,7 @@ Users can vote for their preferred features for the AI Studies Manager product. 
 
 **User Flows:**
 - **Login:** Email-based authentication (no password required)
+- **Create Feature:** Users can create new features with title and description
 - **Voting:** Select a feature from a dropdown and submit vote
 - **Ranking:** View features ordered by vote count with medals for top 3
 
@@ -50,6 +51,7 @@ Users can vote for their preferred features for the AI Studies Manager product. 
 **API Routes:**
 - `GET /api/users/email/:email` - Get or create user
 - `GET /api/features` - List all features with vote counts
+- `POST /api/features` - Create a new feature
 - `GET /api/votes` - List all votes
 - `POST /api/features/:id/vote` - Submit or update vote
 

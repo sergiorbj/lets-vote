@@ -12,6 +12,13 @@ export class ApiError extends Error {
   }
 }
 
+function formatValidationErrors(details?: Array<{ field: string; message: string }>): string | null {
+  if (!details || details.length === 0) {
+    return null;
+  }
+  return details.map(d => d.message).join('. ');
+}
+
 async function handleResponse<T>(response: Response): Promise<T> {
   const contentType = response.headers.get('content-type');
   const isJson = contentType?.includes('application/json');
@@ -22,7 +29,8 @@ async function handleResponse<T>(response: Response): Promise<T> {
 
     if (isJson) {
       const errorBody = await response.json();
-      errorMessage = errorBody.message || errorMessage;
+      const validationMessage = formatValidationErrors(errorBody.details);
+      errorMessage = validationMessage || errorBody.error || errorBody.message || errorMessage;
       errorData = errorBody;
     }
 

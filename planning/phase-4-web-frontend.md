@@ -48,10 +48,16 @@ Ranking Page (/ranking)
 
 **Route:** `/vote`
 
-**Purpose:** Display features as checkboxes for user to select and vote
+**Purpose:** Display features as checkboxes for user to select and vote, and allow users to create new features
 
 **UI Elements:**
 - User email display (top right)
+- **Create New Feature Section:**
+  - Collapsible card with "Add New Feature" button
+  - Title input field (5-100 characters)
+  - Description textarea (10-500 characters)
+  - "Create Feature" button
+  - Validation error messages
 - Feature list (checkbox for each feature)
   - Feature title
   - Feature description (truncated or collapsible)
@@ -65,21 +71,33 @@ Ranking Page (/ranking)
 **Functionality:**
 1. Load all features: `GET /api/features`
 2. Load user's votes: `GET /api/votes?userEmail={email}`
-3. Display features with checkboxes:
+3. **Create New Feature:**
+   - User clicks "Add New Feature" to expand form
+   - User fills in title and description
+   - On "Create Feature": `POST /api/features` with `{title, description, userEmail}`
+   - After creation:
+     - Refetch features list
+     - Auto-select the newly created feature
+     - Close the create form
+     - Show in dropdown/list
+4. Display features with checkboxes:
    - Pre-check features user already voted for
    - Allow user to check/uncheck
-4. On "Submit Votes":
+5. On "Submit Votes":
    - Compare new selections with existing votes
    - For newly checked: `POST /api/features/:id/vote`
    - For newly unchecked: `DELETE /api/features/:id/vote`
    - Show success message
    - Display "View Rankings" button
-5. Navigate to `/ranking` on button click
+6. Navigate to `/ranking` on button click
 
 **Business Rules:**
+- User can create new features with title and description
 - User can vote on multiple features
 - User can change votes (uncheck to remove vote)
 - User can vote on their own features
+- Title must be 5-100 characters
+- Description must be 10-500 characters
 
 ---
 
@@ -515,19 +533,33 @@ export const useVotes = (userEmail: string) => {
 1. Get email from AuthContext (redirect if null)
 2. Load features with useFeatures()
 3. Load user votes with useVotes(email)
-4. State: selectedFeatures (Set of IDs), submitting, success
+4. State:
+   - selectedFeatures (Set of IDs), submitting, success
+   - showCreateForm, newFeatureTitle, newFeatureDescription, creating, createError
 
-5. On feature checkbox change:
+5. On "Create Feature":
+   - Validate title and description
+   - Call featureService.createFeature({title, description, userEmail})
+   - Refetch features list
+   - Auto-select the newly created feature
+   - Reset form and hide create form
+
+6. On feature checkbox change:
    - Add/remove from selectedFeatures
 
-6. On "Submit Votes":
+7. On "Submit Votes":
    - Show loading state
    - For each change: call toggleVote
    - Show success message
    - Show "View Rankings" button
 
-7. Render:
+8. Render:
    - Header with user email
+   - Create New Feature card (collapsible)
+     - Title input
+     - Description textarea
+     - Create button
+     - Error messages
    - Feature list (checkboxes)
    - Submit button
    - Success message + Rankings button (conditional)
@@ -647,6 +679,9 @@ VITE_API_URL=http://localhost:3000
 - [ ] Create UI components (Button, Input, Checkbox, Card, Medal, Badge)
 - [ ] Implement Login Page
 - [ ] Implement Vote Page
+  - [ ] Create New Feature form
+  - [ ] Feature selection/voting
+  - [ ] Auto-select newly created features
 - [ ] Implement Ranking Page
 - [ ] Add routing and protected routes
 - [ ] Style with Tailwind CSS
@@ -654,6 +689,10 @@ VITE_API_URL=http://localhost:3000
 
 ### Testing Phase
 - [ ] Test login flow
+- [ ] Test creating new features
+  - [ ] Validate title and description requirements
+  - [ ] Verify feature appears in list after creation
+  - [ ] Verify auto-selection of newly created feature
 - [ ] Test voting functionality
 - [ ] Test ranking display
 - [ ] Test error handling

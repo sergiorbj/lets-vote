@@ -34,3 +34,9 @@ export interface ApiResponse<T> {
   data: T;
   error?: string;
 }
+
+export interface CreateFeatureData {
+  title: string;
+  description: string;
+  createdByEmail: string;
+}

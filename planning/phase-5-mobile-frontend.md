@@ -150,6 +150,7 @@ Create these service modules:
 
 **featureService:**
 - getAllFeatures(): Fetch all features sorted by vote count
+- createFeature(data: {title, description, userEmail}): Create a new feature
 
 **voteService:**
 - getAllVotes(): Fetch all votes
@@ -248,6 +249,12 @@ All components should match the web app's visual design:
 
 **UI Elements:**
 - Header with welcome message and logout button
+- **Create New Feature Section:**
+  - Collapsible card with "Add New" button
+  - Title input field (5-100 characters)
+  - Description textarea (10-500 characters)
+  - "Create Feature" button
+  - Validation error messages
 - Feature dropdown (Picker)
 - Feature description display (when selected)
 - Submit vote button
@@ -257,6 +264,14 @@ All components should match the web app's visual design:
 **Functionality:**
 - Load user's existing vote on mount
 - Pre-select user's voted feature in dropdown
+- **Create New Feature:**
+  - User taps "Add New" to expand form
+  - User fills in title and description
+  - On "Create Feature": Call featureService.createFeature()
+  - After creation:
+    - Refetch features list
+    - Auto-select the newly created feature in dropdown
+    - Close the create form
 - Submit vote on button press
 - Handle vote changes (backend handles the swap)
 - Show success state after voting
@@ -269,6 +284,10 @@ All components should match the web app's visual design:
 - submitting: Loading state for API call
 - error: Error message
 - hasVotedInSession: Track if user voted in current session
+- showCreateForm: Toggle for create form visibility
+- newFeatureTitle, newFeatureDescription: Create form inputs
+- creating: Loading state for feature creation
+- createError: Error message for feature creation
 
 ### 3. Ranking Screen
 
@@ -515,7 +534,7 @@ Given the constraints:
 **2. Services Layer** (1 hour)
 - API service with error handling
 - Auth service (verifyUser)
-- Feature service (getAllFeatures)
+- Feature service (getAllFeatures, createFeature)
 - Vote service (getAllVotes, voteOnFeature)
 
 **3. Context** (30 min)
@@ -535,7 +554,7 @@ Given the constraints:
 
 **6. Screens** (3 hours)
 - LoginScreen (email validation, navigation)
-- VoteScreen (dropdown, submission, success state)
+- VoteScreen (create feature form, dropdown, submission, success state)
 - RankingScreen (FlatList, medals, navigation)
 
 **7. Navigation** (30 min)
@@ -558,6 +577,14 @@ Given the constraints:
 - [ ] Login with valid email succeeds
 - [ ] Login with invalid email shows error
 - [ ] Loading state displays correctly
+
+**Feature Creation:**
+- [ ] Create feature form expands/collapses correctly
+- [ ] Title and description validation works
+- [ ] Can create a new feature successfully
+- [ ] New feature appears in dropdown after creation
+- [ ] New feature is auto-selected after creation
+- [ ] Form closes after successful creation
 
 **Voting Flow:**
 - [ ] Features load and display in dropdown

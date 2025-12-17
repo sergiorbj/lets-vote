@@ -37,7 +37,7 @@ export interface ApiError {
 export interface CreateFeatureData {
   title: string;
   description: string;
-  userEmail: string;
+  createdByEmail: string;
 }
 
 export interface VoteData {
