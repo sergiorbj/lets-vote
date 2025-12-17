@@ -1,0 +1,170 @@
+openapi: 3.0.0
+info:
+  title: Feature Voting System API
+  version: 1.0.0
+  description: API for voting on product features
+
+servers:
+  - url: http://localhost:3000/api
+    description: Local development server
+
+paths:
+  /users/email/{email}:
+    get:
+      summary: Get or create user by email
+      parameters:
+        - name: email
+          in: path
+          required: true
+          schema:
+            type: string
+            format: email
+      responses:
+        '200':
+          description: User found or created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    $ref: '#/components/schemas/User'
+
+  /features:
+    get:
+      summary: Get all features with vote counts
+      responses:
+        '200':
+          description: List of features
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Feature'
+
+  /votes:
+    get:
+      summary: Get all votes
+      responses:
+        '200':
+          description: List of votes
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Vote'
+
+  /features/{id}/vote:
+    post:
+      summary: Vote for a feature
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - userEmail
+              properties:
+                userEmail:
+                  type: string
+                  format: email
+      responses:
+        '200':
+          description: Vote recorded
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      vote:
+                        $ref: '#/components/schemas/Vote'
+                      feature:
+                        $ref: '#/components/schemas/Feature'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+components:
+  schemas:
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+        email:
+          type: string
+          format: email
+        name:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+
+    Feature:
+      type: object
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        description:
+          type: string
+        voteCount:
+          type: integer
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    Vote:
+      type: object
+      properties:
+        id:
+          type: string
+        userId:
+          type: string
+        featureId:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+
+    Error:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+        error:
+          type: string

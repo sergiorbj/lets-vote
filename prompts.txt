@@ -1,0 +1,274 @@
+[2025-12-16]
+Write each prompt I send to you into a file prompts.txt, so I can audit the work.
+
+[2025-12-16]
+ok, so now you're a skilled fullstack engineer and I need your assistance creating a Feature Voting System for our AI Studies Manager product.
+
+USER REQUIREMENTS:
+* Users can post new feature requests
+* Users can upvote existing features
+* Users can see features ranked by vote count
+
+PROJECT APPROACH:
+I want to split this into 5 phases:
+1. Project setup and architecture planning
+2. Database configuration and schema design
+3. Backend API development
+4. Web frontend development
+5. Mobile frontend development
+
+TECH STACK PREFERENCES:
+
+Database:
+- I'm considering SQLite with an ORM for simplicity
+- Please suggest 2-3 ORM options with pros/cons for this use case
+- I need something with good migrations support
+
+Backend:
+- Node.js (TypeScript) with Express
+- Native fetch for any external calls
+- Zod for input validation and type safety
+- Clean service layer architecture
+
+Web Frontend:
+- React with Vite
+- Tailwind CSS for styling
+- Magic UI for pre-built components (if beneficial)
+- useContext for state management (only if needed)
+- Architecture:
+  * Services layer for API calls
+  * Custom hooks for component logic and state
+  * Components should only handle UI/DOM rendering
+
+Mobile Frontend:
+- React Native with Expo
+- I have limited mobile development experience
+- Need something easy to test locally on Ubuntu (no iOS simulator available)
+- Should share similar architecture with web frontend
+- Please advise on:
+  * Best approach for local testing (Expo Go vs emulator)
+  * Component libraries compatible with Expo
+  * Any gotchas I should be aware of
+
+IMPORTANT INSTRUCTIONS:
+- Do NOT write any code yet
+- Let's start by creating a comprehensive plan in markdown files
+- Create a folder structure for planning documents
+- For each phase, we'll create a separate planning document
+
+So first, let's create a planning folder with the project-setup file
+
+[2025-12-16]
+let's move foward for phase 2, the database plan.
+
+I've consider your explanations about those 3 orm libs and I would like to
+choose prisma with sqlite file. please create a plan:
+
+* using sqlite as database
+* create a example of user and vote model structure with fields
+* if necessary, also create the models for user and votes in backend folder, and import it into the migrations/seed comand
+* create commands to inicializate the db with existing random data with seeds
+   * create example users and features with random votes
+
+[2025-12-16]
+I would like to make a plan for each phase and then implement. So let's create the setup for datase and create the tables and seed with information
+
+[2025-12-16]
+Before start phase 3, I noticed that we have a status field in Feature model. we won't need this field yet. Could you please remove it from the model and remove the dependencies of this field if necessary?
+
+[2025-12-16]
+Ok so let's move foward and create a plan for phase 3. Review the requirements that I wrote for this phase and also consider these statements:
+
+* For api routes, we'll need:
+ FOR FEATURES
+ * GET -> All features
+ * GET -> feature by id
+ * POST -> feature
+* FOR VOTES
+ * GET -> All votes
+* FOR USERS
+ * GET -> user by email
+
+- Create an error handling middleware for general errors
+- Use early return pattern for validations
+- suggest http status codes accordily
+
+[2025-12-16]
+I noticed that we have to modify some assumptions:
+
+- we don't need to handle paginations for now
+- (for rewind) I would like to use controler/service pattern on backend:
+  - Controler layer for handling payload validation
+  - service layer for processing and make the ORM queries
+
+- I would like to check the constraints:
+ - User CAN vote in your own feature
+ - Usar CAN NOT vote more than one feature
+
+[2025-12-16]
+Can you add unit tests with jest, focused on testing the business logic inted of coverage for now? Add it into plhase-3 planning file
+
+[2025-12-16]
+You don't need to attach the unit test in the planning file, just create a rule as I mentioned, and then excute the phase 3 plan!
+
+[2025-12-16]
+ok, so let's work in phase 4 plan. I would like to add some requirements:
+- we'll need 3 pages:
+ - first, the "login" page. The user will type his email on a input field, and we need to check if the user exists and then move foward to vote page.
+- vote page, with a check list of existing features and a vote button. After vote, a button will appears to check vote rank
+- feature ranking page, displaying all features and highlighting the top 3
+
+- about collor pattern:
+- please give mea suggestion with 5 collor pattern thet we could use inside our frontend (should be the same for the mobile)
+
+[2025-12-16]
+I liked the 5 option for color patterns. and let's implement phase 4
+
+[2025-12-16]
+continue with the part that you stopped
+
+[2025-12-16]
+Now that the frontend implementation is done, I would like to add E2E tests with Playwright to ensure everything works correctly.
+
+Can you add a new section "## 21. E2E Testing with Playwright" to the phase-4-web-frontend.md file?
+
+I want to focus on testing the user journeys - happy paths and important edge cases for each page (Login, Vote, and Ranking). I'm not looking for full coverage, just the critical flows that ensure the app works as expected.
+
+For example:
+- On the Login page, test that a valid email works and an invalid one shows an error
+- On the Vote page, test selecting features and submitting votes
+- On the Ranking page, test that features are displayed with the top 3 highlighted
+
+Also include the Playwright setup commands and add the test script to both the web package.json and the root package.json (since this is a monorepo).
+
+Please follow the same formatting style as the rest of the document.
+
+[2025-12-16]
+implement the playwright tests now as discussed, and also run all and garantee that every test will pass
+
+[2025-12-16]
+After the initial frontend implementation and the E2E tests, I identified a few points that we need to update:
+
+Voting page:
+- Replace the checklist with a dropdown and ensure the user can select only one feature
+- Add more context to indicate that users are voting on features for our AI Studies Manager product
+- Allow users to vote even if they have already voted before
+- Do not display the number of votes on the voting page, as it may introduce bias
+
+Please update:
+- The frontend implementation
+- The E2E tests to validate the new behaviors
+- The backend and backend tests, if required
+
+[2025-12-16]
+The voting page behavior seems incorrect.
+
+Observed issues:
+- Clicking the vote button does not always persist the vote correctly
+- Clicking the vote button multiple times results in an inconsistent vote count on the ranking page
+- After voting, the vote button should stay disabled and only the "View ranking" button should be visible, but this is not happening consistently
+
+Please:
+1. Investigate the current frontend and backend flow for submitting a vote
+2. Identify where the inconsistency is coming from (frontend state, API, or backend persistence)
+3. Explain the root cause
+4. Apply the minimal fix needed
+5. Update or add tests to prevent regressions
+
+[2025-12-16]
+Now let's move forward to Phase 5: Mobile Frontend Development.
+
+Context:
+- Backend and web frontend are fully implemented and working correctly
+- The mobile app should consume the same backend API
+
+Tech stack decision:
+- React Native with Expo
+- Development for Android (no iOS simulator available)
+- Local testing on Ubuntu
+
+Goals for Phase 5:
+- Create a basic but functional mobile version of the Feature Voting System
+- Use the same user flows from the web app
+- Reuse mental models and architecture where possible
+
+Core mobile screens:
+1. Login screen
+2. Voting screen
+3. Ranking screen
+
+Architecture guidelines:
+- Keep the architecture similar to the web frontend (API service layer, hooks, screens)
+- Avoid unnecessary abstractions
+- Prioritize readability over reuse
+
+Tasks:
+1. Create a Phase 5 planning md file
+2. Define folder structure, navigation strategy, state handling, and API integration
+3. Suggest 2-3 viable E2E testing options compatible with Expo
+4. Recommend the most reasonable option given time constraints
+
+Guidelines:
+- Keep it simple
+- Explain trade-offs before implementation
+
+[2025-12-16]
+I would like to create a clear and concise README.md for this project.
+
+Context:
+This repository contains a Feature Voting System.
+The goal is to demonstrate system thinking, clean architecture, and effective collaboration with AI tools.
+
+Tone and style:
+- Clear and professional
+- Straightforward, not marketing oriented
+- Avoid buzzwords and explaining unnecessary things
+- Assume a technical audience
+
+Please structure the README with the following sections:
+
+1. Project Overview
+- Brief description of what the system does
+- Main user flows (login, voting, ranking)
+
+2. Architecture Overview
+- High-level description of the system components
+- Backend, Web Frontend, and Mobile Frontend responsibilities
+
+3. Backend
+- Database schema overview (tables and relationships)
+- API routes summary
+- Reference to an OpenAPI/Swagger file (you have to create it too)
+
+4. Running the Project Locally
+- Prerequisites
+- Commands to start:
+  - Backend
+  - Web frontend
+  - Mobile app (Expo)
+
+5. Testing
+- Backend tests (unit tests)
+- Web frontend E2E tests (Playwright)
+- Mobile testing approach (manual via Expo Go)
+  - I've tested with url provide by expo. Opening it into mobile browser and redirecting to Expo Go App
+
+6. Useful Notes
+- Assumptions and constraints
+- Known limitations due to time constraints
+- Decisions made to keep the solution simple
+
+7. Future Features
+- Authentication
+- Features per sprint
+
+Guidelines:
+- Keep each section concise
+- Use bullet points where appropriate
+- Do not include implementation details unless necessary
+
+[2025-12-16]
+One last thing, for mobile implementation, I need to set the ip that the mobile will use for backend as environment variable
+
+[2025-12-16]
+Could you add a section in readme for env variables needed in all the 3 packages?

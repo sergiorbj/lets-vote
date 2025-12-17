@@ -1,0 +1,66 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// User Model
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  name      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  features  Feature[]  @relation("UserFeatures")
+  votes     Vote[]     @relation("UserVotes")
+
+  @@map("users")
+}
+
+// Feature Model
+model Feature {
+  id          String   @id @default(uuid())
+  title       String
+  description String
+  voteCount   Int      @default(0)        // Denormalized for performance
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Foreign Keys
+  createdById String
+  createdBy   User   @relation("UserFeatures", fields: [createdById], references: [id], onDelete: Cascade)
+
+  // Relations
+  votes       Vote[] @relation("FeatureVotes")
+
+  @@index([voteCount(sort: Desc)]) // Index for sorting by votes
+  @@index([createdById])
+  @@map("features")
+}
+
+// Vote Model
+model Vote {
+  id        String   @id @default(uuid())
+  createdAt DateTime @default(now())
+
+  // Foreign Keys
+  userId    String
+  user      User     @relation("UserVotes", fields: [userId], references: [id], onDelete: Cascade)
+
+  featureId String
+  feature   Feature  @relation("FeatureVotes", fields: [featureId], references: [id], onDelete: Cascade)
+
+  // Constraint: One user can vote only once per feature
+  @@unique([userId, featureId])
+  @@index([featureId])
+  @@index([userId])
+  @@map("votes")
+}
